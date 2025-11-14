@@ -1,4 +1,5 @@
 # inference_service.py
+from datetime import datetime
 import numpy as np
 import joblib
 import tensorflow as tf
@@ -26,6 +27,7 @@ class FeatureVector(BaseModel):
     hrv_rmssd_ms: float
 
 class PredictRequest(BaseModel):
+    timestamp: datetime 
     window: List[FeatureVector]  # length must be 24
 
 class Factor(BaseModel):
@@ -33,8 +35,9 @@ class Factor(BaseModel):
     score: float
 
 class PredictResponse(BaseModel):
-    probability: float
+    p_next_hour: float
     top_factors: List[Factor]
+    timestamp: datetime
 
 
 # ---------- Integrated Gradients ----------
@@ -92,6 +95,7 @@ def predict(req: PredictRequest):
 
     prob, factors = predict_with_attributions(model, arr_scaled, FEATURES, TOP_K)
     return PredictResponse(
-        probability=prob,
-        top_factors=[Factor(**f) for f in factors]
+        p_next_hour=prob,
+        top_factors=[Factor(**f) for f in factors],
+        timestamp=req.timestamp
     )
