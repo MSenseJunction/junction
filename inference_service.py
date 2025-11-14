@@ -95,7 +95,7 @@ def predict(req: PredictRequest):
 
     prob, factors = predict_with_attributions(model, arr_scaled, FEATURES, TOP_K)
     return PredictResponse(
-        probability=prob,
+        p_next_hour=prob,
         top_factors=[Factor(**f) for f in factors],
         timestamp=req.timestamp
     )
